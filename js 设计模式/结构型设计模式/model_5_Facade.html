@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外观模式</title>
+</head>
+<body>
+    
+    <input type="text" id="myinput">
+    <div id="box"></div>
+</body>
+<script type="text/javascript">
+    // var a = document.createElement('div');
+    // a.style.width = 100;
+    // a.style.height = 100;
+    // a.style.margin = '100px';
+    // a.innerHTML = 'hahahah';
+    // a.style.color = '#fff';
+    // a.style.backgroundColor = '#BE1313';
+    // a.style.fontWeight = 900;
+
+    // document.apped(a);
+    // // document.getElementsByTagName('body').appendChild(a);
+
+
+
+    function addEvent (dom, type, fn) {
+        // 对于支持m2级事件处理程序addEventListener的浏览器
+        if (dom.addEventListener) {
+            dom.addEventListener(type, fn, false);
+        // 不支持addEvent 但支持attachEvent的
+        } if (dom.attachEvent) {
+            dom.attachEvent('on' + type, fn);
+        // 对于不支持addEventListener方法也不支持attachEvent方法，但支持on + '事件名'的浏览器
+        } else {
+            dom['on' + type] = fn;
+        }
+    }
+
+    var myinput = document.getElementById('myinput');
+    addEvent(myinput, 'click', function() {
+        console.log("绑定第一个事件");
+    })
+    addEvent(myinput, 'click', function() {
+        console.log("绑定第儿个事件");
+    })
+
+    // 获取事件对象
+    var getEvent = function (event) {
+        // 标准浏览器下返回event，IE下返回window.event
+        return event || window.event;
+    }
+    // 获取元素
+    var getTarget = function(event) {
+        var event = getEvent(event);
+        // 标准浏览器下 event.target IE下 event.srcElement
+        return event.target || event.srcElement;
+    }
+    // 阻止默认行为
+    var preventDefault = function (evrent) {
+        var event = getEvent(event);
+        // 标准浏览器
+        if (event.preventDefault) {
+            event.preventDefault();
+        // IE 浏览器
+        } else {
+            event.returnValue = false;
+        }
+    }
+
+    document.onclick = function (e) {
+        preventDefault(e);
+        if(getTarget(e) !== document.getElementById('myinput')) {
+            hideInputSug();
+        }
+    }
+
+
+
+    /////////封装一个小型代码库/////////
+    var A = {
+        // 通过id获取元素
+        g : function(id) {
+            return document.getElementById(id);
+        },
+        // 设置元素的css属性
+        css : function(id, key, value) {
+            document.getElementById(id).style[key] = value;
+        },
+        // 设置元素的属性
+        attr : function(id, key, value) {
+            document.getElementById(id)[key] = value;
+        },
+        html : function(id, html) {
+            document.getElementById(id).innerHTML = html;
+        },
+        // 为元素绑定事件
+        on : function(id, type, fn) {
+            document.getElementById(id)['on' + type] = fn;
+        }
+    }
+
+    A.css('box', 'background', 'red');
+    A.attr('box', 'className', 'box');
+    A.html('box', '这是一个新增的内容');
+    A.on('box', 'click', function () {
+        A.css('box', 'width', '500px');        
+    })
+</script>
+</html>
