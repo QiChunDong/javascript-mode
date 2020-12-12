@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>享元模式</title>
+</head>
+<body>
+    <div id="container">
+
+    </div>
+    <button id="next-page">下一页</button>
+</body>
+<script>
+// 寄生式继承
+function inheritObject (o) {
+    // 声明一个过度函数
+    function F () {}
+    F.prototype = o;
+    return new F();
+}
+// 组合寄生继承
+function inheritPrototye (supClass, subClass) {
+    // p - 父类的原型
+    var p = inheritObject(supClass.prototype);
+    // p - 构造函数 子类
+    p.constructor = subClass;
+
+    // 这时候 p有父类的原型和子类的构造函数，接下来指定p为子类的原型
+    subClass.prototype = p;
+    // over
+}
+
+/**
+ * 享元模式 
+ * 利用共享技术有效支持大量的细粒度的对象，避免对象间拥有太多相同内容造成多余的开销
+ */
+
+var FlyWeight = function (){
+    var created = [];
+    function create () {
+        var dom = document.createElement('div');
+        document.getElementById('container').appendChild(dom);
+        created.push(dom);
+        return dom;
+    }
+    return {
+        getDiv: function () {
+            if (created.length < 5) {
+                return create();
+            } else {
+                var div = created.shift();
+                created.push(div);
+                return div;
+            }
+        }
+    }
+}()
+
+var article = [
+    '111111111111',
+    '22222222',
+    '22222223333',
+    '4444444444',
+    '55555555',
+    '66666666666',
+    '77777777777',
+    '88888888888',
+    '9999999999',
+    '00000000000000'
+]
+
+var paper = 0,
+    num = 5,
+    len = article.length;
+for (var i=0; i<5; i++) {
+    if (article[i]) [
+        FlyWeight.getDiv().innerHTML = article[i]
+    ]
+}
+document.getElementById('next-page').onclick = function () {
+    if (article.length < 5) {
+        return;
+    }
+    var n = ++paper * num % len,
+        j = 0;
+    for(; j<5; j ++) {
+        if (article[n + j]) {
+            FlyWeight.getDiv().innerHTML = article[n + j];
+        } else if (article[n + j -len]) {
+            FlyWeight.getDiv().innerHTML = article[n + j -len];
+        } else {
+            FlyWeight.getDiv().innerHTML = '';
+        }
+    }
+}
+</script>
+
+</html>
+
+
+
+
+
+
