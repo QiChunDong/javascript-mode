@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组合模式</title>
+</head>
+<body>
+    
+</body>
+<script>
+// 寄生式继承
+function inheritObject (o) {
+    // 声明一个过度函数
+    function F () {}
+    F.prototype = o;
+    return new F();
+}
+// 组合寄生继承
+function inheritPrototye (supClass, subClass) {
+    // p - 父类的原型
+    var p = inheritObject(supClass.prototype);
+    // p - 构造函数 子类
+    p.constructor = subClass;
+
+    // 这时候 p有父类的原型和子类的构造函数，接下来指定p为子类的原型
+    subClass.prototype = p;
+    // over
+}
+/**
+ * 组合模式 部分-整体模式
+ * 将对象组合成树结构 以表示 【部分整体】的层次结构
+ * 使用户对单个对象和组合对象的使用据有一致性
+ * 
+ */
+
+// 首先 抽象出虚拟的父类 没有具体的逻辑
+// 定义两个属性 子类和元素 默认是空
+var News = function () {
+    this.children = [];
+    this.element = {};
+}
+// 定义抽象的方法
+News.prototype = {
+    init : function () {
+        throw new Error("请重写方法");
+    },
+    add : function () {
+        throw new Error("请重写方法");
+    },
+    getElement : function () {
+        throw new Error("请重写方法");
+    }
+}
+
+// 容器
+var Container = function (id, parent) {
+    // 构造函数继承父类 news
+    News.call(this);
+    this.id = id;
+    this.parent = parent;
+    this.init();
+}
+inheritPrototye(News, Container);
+// 重写方法
+Container.prototype.init = function () {
+    this.element = document.createElement('ul');
+    this.element.id = this.id;
+    this.element.className = 'ul-new-container';
+}
+Container.prototype.add = function (child) {
+    this.children.push(child);
+    this.element.appendChild(child.getElement());
+    return this;
+}
+Container.prototype.getElement = function () {
+    return this.element;
+}
+Container.prototype.show = function () {
+    this.parent.appendChild(this.element);
+}
+
+// 条目
+var Item = function (classname) {
+    // 构造函数继承父类 news
+    News.call(this);
+    this.classname = this.classname || '';
+    this.init();
+}
+inheritPrototye(News, Item);
+// 重写方法
+Item.prototype.init = function () {
+    this.element = document.createElement('li');
+    this.element.className = this.classname;
+}
+Item.prototype.add = function (child) {
+    this.children.push(child);
+    console.log(this.element);
+    this.element.appendChild(child.getElement());
+    return this;
+}
+Item.prototype.getElement = function () {
+    return this.element;
+}
+
+// 组
+var NewsGroup = function (classname) {
+    // 构造函数继承父类 news
+    News.call(this);
+    this.classname = this.classname || '';
+    this.init();
+}
+inheritPrototye(News, NewsGroup);
+// 重写方法
+NewsGroup.prototype.init = function () {
+    this.element = document.createElement('div');
+    this.element.className = this.classname;
+}
+NewsGroup.prototype.add = function (child) {
+    this.children.push(child);
+    this.element.appendChild(child.getElement());
+    return this;
+}
+NewsGroup.prototype.getElement = function () {
+    return this.element;
+}
+
+// 图
+var IamgeNews = function (url, href, classname) {
+    // 构造函数继承父类 news
+    News.call(this);
+    this.url = url || '';
+    this.href = href || '#';
+    this.classname = this.classname || '';
+    this.init();
+}
+inheritPrototye(News, IamgeNews);
+// 重写方法
+IamgeNews.prototype.init = function () {
+    this.element = document.createElement('a');
+    // 图片可跳转
+    var img = new Image();
+    img.src = this.url;
+    this.element.appendChild(img);
+    this.element.url = this.url;
+    this.element.href = this.href;
+    this.element.className = 'image-news' + this.classname;
+}
+IamgeNews.prototype.add = function () {}
+IamgeNews.prototype.getElement = function () {
+    return this.element;
+}
+
+// type 图标的class 
+var IconNews = function (text, href, type) {
+    // 构造函数继承父类 news
+    News.call(this);
+    this.text = text || '';
+    this.href = href || '#';
+    this.type = type || 'video';
+    this.init();
+}
+inheritPrototye(News, IconNews);
+// 重写方法
+IconNews.prototype.init = function () {
+    this.element = document.createElement('a');
+    this.element.innerHTML = this.text;
+    this.element.href = this.href;
+    this.element.className = 'icon-' + this.type;
+}
+IconNews.prototype.add = function () {}
+IconNews.prototype.getElement = function () {
+    return this.element;
+}
+
+// 用例
+var news1 = new Container('news', document.body);
+news1.add(
+    new Item('normal').add(
+        new IconNews('hahahaha', '/test', 'normal')
+    )
+).add(
+    new Item('normal').add(
+        new IconNews('11111', '/test', 'normal')
+    )
+).add(
+    new Item('normal').add(
+        new NewsGroup('test-group').add(
+            new IconNews('sdsadad', '/test', 'normal')
+        ).add(
+            new IamgeNews('/xdddd.img', '/test', 'normal')
+        )
+    )
+).show()
+</script>
+
+</html>
+
+
+
+
+
+
