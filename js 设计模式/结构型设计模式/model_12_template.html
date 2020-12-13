@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模板方法</title>
+</head>
+<body>
+</body>
+<script>
+// 寄生式继承
+function inheritObject (o) {
+    // 声明一个过度函数
+    function F () {}
+    F.prototype = o;
+    return new F();
+}
+// 组合寄生继承
+function inheritPrototye (supClass, subClass) {
+    // p - 父类的原型
+    var p = inheritObject(supClass.prototype);
+    // p - 构造函数 子类
+    p.constructor = subClass;
+
+    // 这时候 p有父类的原型和子类的构造函数，接下来指定p为子类的原型
+    subClass.prototype = p;
+    // over
+}
+
+/**
+ * 模板方法
+ * 父类定义算法骨架
+ * 将一些实现步骤延迟到子类中
+ * 子类不改变父类的算法结构
+ * 重新定义算法的某些实现
+ */
+
+// 基类
+var Alert = function (data) {
+    if (!data) return;
+    this.content = data.content;
+    this.panel = document.createElement('div');
+    this.contentNode = document.createElement('p');
+    this.confirmBtn = document.createElement('span');
+    this.closeBtn = document.createElement('b');
+    this.panel.className = 'alert';
+    this.confirmBtn.className = 'a-confirm';
+    this.closeBtn.className = 'a-close';
+    this.confirmBtn.innerHTML = data.confirm || '确认';
+    this.contentNode.innerHTML = data.content;
+    this.success = data.success || function () {};
+    this.fail = data.fail || function () {};
+}
+// 基类的原型
+Alert.prototype = {
+    init: function () {
+        this.panel.appendChild(this.contentNode);
+        this.panel.appendChild(this.closeBtn);
+        this.panel.appendChild(this.confirmBtn);
+        document.body.appendChild(this.panel);
+
+        this.bindEvent();
+        this.show();
+    },
+    bindEvent : function () {
+        var me = this;
+
+        me.closeBtn.onclick = function () {
+            me.fail();
+            me.hide();
+        }
+
+        me.confirmBtn.onclick = function () {
+            me.success();
+            me.hide();
+        }
+    },
+    hide : function () {
+        this.panel.style.display = 'none';
+    },
+    show : function () {
+        this.panel.style.display = 'block';
+    }
+}
+
+// 右侧确认
+var RightAlert = function () {
+    Alert.call(this);
+    this.content.className = this.content.className + '-right';
+}
+RightAlert.prototype = new Alert();
+
+// 标题
+var TitleAlert = function (data) {
+    Alert.call(this, data);
+    this.title = data.title;
+    this.titleNode = document.createElement('h3');
+    this.titleNode.innerHTML = this.title;
+}
+TitleAlert.prototype = new Alert();
+TitleAlert.prototype.init = function () {
+    this.panel.insertBefore(this.titleNode, this.panel.firstChild);
+    Alert.prototype.init.call(this);
+}
+
+// 取消
+var CancelAlert = function (data) {
+    TitleAlert.call(this, data);
+    this.cancelBtn = document.createElement('span');
+    this.cancel = data.cancel;
+    this.cancelBtn.innerHTML = this.cancel || '取消';
+    this.cancelBtn.className = 'a-cancel';
+}
+CancelAlert.prototype = new Alert();
+CancelAlert.prototype.init = function () {
+    TitleAlert.prototype.init.call(this);
+    this.panel.appendChild(this.cancelBtn);
+}
+CancelAlert.prototype.bindEvent = function () {
+    var me = this;
+    TitleAlert.prototype.bindEvent.call(me);
+    me.cancelBtn.onclick = function () {
+        me.fail();
+        me.hide();
+    }
+}
+
+
+// 测试
+new CancelAlert({
+    title: '注意',
+    content: '今天是南京大屠杀纪念日，勿忘国耻，珍爱和平！',
+    success : function () {
+        console.log('勿忘国耻');
+    },
+    fail : function () {
+        console.log('珍爱和平');
+    }
+}).init()
+
+
+
+</script>
+</html>
