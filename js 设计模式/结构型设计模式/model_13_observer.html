@@ -147,7 +147,7 @@ Student.prototype.answer = function (question) {
     Observer.register(question, this.say);
 }
 Student.prototype.sleep = function (question) {
-    console.log(this.resulr + ' ' + question + '的监听已经被注销');
+    console.log(this.result + ' ' + question + '的监听已经被注销');
     Observer.remove(question, this.say);
 }
 

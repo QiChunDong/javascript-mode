@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>状态模式</title>
+</head>
+<body>
+</body>
+<script>
+/**
+ * 状态模式
+ * 当对象的一个属性发生变化 会影响其他的行为，看起来你像是改变了个对象
+ * */
+
+var resultState = (function () {
+    var States = {
+        state0 : function () {
+            console.log('这是第一种状态');
+        },
+        state1 : function () {
+            console.log('这是第二种状态');
+        },
+        state2 : function () {
+            console.log('这是第三种状态');
+        },
+        state3 : function () {
+            console.log('这是第四种状态');
+        },
+        state4 : function () {
+            console.log('这是第五种状态');
+        }
+    }
+    function show (result) {
+        States['state' + result] && States['state' + result]()
+    }
+    return {
+        show: show
+    }
+})()
+resultState.show(2);
+
+
+// //// //// //超级玛丽案例// /// /// /// ///
+var MarryState = function () {
+    var _currentState = {},
+        states = {
+            jump : function () {
+                console.log('跳跃');
+            },
+            move : function () {
+                console.log('移动');
+            },
+            shot : function () {
+                console.log('射击');
+            },
+            squat : function () {
+                console.log('蹲下');
+            }
+        },
+        Actions = {
+            changeState : function (action) {
+                var args = arguments;
+                _currentState = {};
+                if (args.length) {
+                    for (var i=0; i<args.length; i++) {
+                        _currentState[args[i]] = true;
+                    }
+                }
+                return this;
+            },
+            goes : function (action) {
+                console.log('触发一次动作');
+                for (var i in _currentState) {
+                    states[i] &&  states[i]();
+                }
+                return this;
+            }
+        }
+    return {
+        changeState : Actions.changeState,
+        goes : Actions.goes
+    }
+}
+
+var marry = new MarryState();
+marry
+        .changeState('jump', 'shot')
+        .goes()
+        .goes()
+        .changeState('squat')
+        .goes()
+</script>
+
+</html>
