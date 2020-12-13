@@ -143,8 +143,6 @@ new CancelAlert({
 ///////////////////////////////////////导航//////////////////////////////////////
 var formatStr = function (str, data) {
     return str.replace(/\{#(\w+)#\}/g, function (match, key) {
-        console.log(key, 'key');
-        console.log(match, 'match');
         return typeof data[key] === undefined ? '' : data[key]
     })
 }
@@ -161,9 +159,7 @@ var Nav = function (data) {
 var NumNav = function (data) {
     var tpl = '<b>{#num#}</b>';
     for (var i=data.length-1; i>=0; i--) {
-        console.log(tpl, data[i], formatStr(tpl, data[i])), 
         data[i].name = data[i].name + formatStr(tpl, data[i]);
-        console.log(data[i])
     }
     
     return Nav.call(this, data);
