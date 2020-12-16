@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>职责链模式</title>
+</head>
+<body>
+</body>
+<script>
+/**
+ * 职责链模式
+ * 解决请求的发送者与请求的接收者之间的耦合
+ * 通过职责链上的多个对象分解请求过程
+ * 实现请求在多个对象之间的传递
+ * 直到最后一个对象完成请求得处理
+ **/
+
+// 请求方法 链-1
+var sendData = function (data, dealType, dom) {
+    var xhr = new XMLHttpRequest(),
+        url = '/test';
+    xhr.onload = function (event) {
+        if (xhr.ststua >= 200 && xhr.status < 300 || xhr.status == 304) {
+            dealData(xhr.responseText, dealType, dom);
+        } else {
+            console.log('请求失败');
+        }
+    }
+
+    for (var i in data) {
+        url += '&' + i + '=' + data[i]
+    }
+
+    xhr.open('get', url, true);
+    xhr.send();
+}
+
+// 处理方法 链-2
+var dealData = function (data, dealType, dom) {
+    // 数据简化
+    var dataType = Object.prototype.toString.call(data);
+    // 分支判断
+    switch (dealType) {
+        // 输入框提示
+        case 'sug' : 
+            if (dataType === '[object Array]') {
+                // 创建提示弹框
+                return createSug(data, dom);
+            }
+            // 将数据转化为数组
+            if (dataType === '[object Object]') {
+                var newData = [];
+                for (var i in data) {
+                    newData.push(data[i]);
+                }
+                return createSug(newData, dom);
+            }
+            // 其他情况
+            return createSug([data], dom);
+            break;
+        case 'validate':
+            return createValidateResult(data, dom);
+            break;
+    }
+}
+
+// 提示 链-3
+var createSug = function (data, dom) {
+    var i = 0,
+        len = data.length,
+        html = '';
+    for (; i < len; i ++) {
+        html += '<li>' + data[i] + '</li>'
+    }
+    dom.parentNode.getElementByTagName('ul')[0].innerHTML = html
+}
+
+// 验证信息 链-3
+var createValidateResult = function (data, dom) {
+    dom.parentNode.getElementByTagName('span')[0].innerHTML = data;
+}
+
+
+</script>
+</html>
