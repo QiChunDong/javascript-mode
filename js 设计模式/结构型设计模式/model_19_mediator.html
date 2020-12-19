@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中介者模式</title>
+</head>
+<body>
+</body>
+<script>
+/**
+ * 中介者模式
+ * 
+ * 通过封装一系列对象之间的交互
+ * 使都对象间不再相互引用
+ * 降低耦合度
+ * 有时中介者也可以改变对象之间的交互
+ * 
+ **/
+
+var Mediator = function () {
+    var _message = {}
+    return {
+        register: function (type, action) {
+            if (_message[type]) {
+                _message[type].push(action)
+            } else {
+                _message[type] = [action]
+            }
+        },
+        send: function (type) {
+            if (_message[type]) {
+                for (var i=0; i<_message[type].length; i++) {
+                    _message[type][i] && _message[type][i]()
+                }
+            }
+        }
+    }
+}()
+
+// 测试
+Mediator.register('test', function() {
+    console.log('yes')
+})
+Mediator.register('test', function() {
+    console.log('yes11111')
+})
+Mediator.send('test')
+
+</script>
+</html>
