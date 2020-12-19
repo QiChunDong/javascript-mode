@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>访问者模式</title>
+</head>
+<body>
+</body>
+<script>
+/**
+ * 访问者模式
+ * 针对对象的元素，在不改变对象的前提下访问结构中元素的新方法
+ * 
+ **/
+
+ // 通过call和apply让对象在其他作用域运行
+var binfIEEvent = function (dom, type, fn, data) {
+    var data = data || {}
+    dom.attachEvent('on' + type, function (e) {
+        fn.call(dom, e, data)
+    })
+}
+
+
+var Visitor = (function () {
+    return {
+        splice: function () {
+            var args = Array.prototype.splice.call(arguments, 1)
+            return Array.prototype.splice.apply(arguments[0], args)
+        },
+        push: function () {
+            var len = arguments[0].length || 0
+            var args = this.splice(arguments, 1)
+            arguments[0].length = len + arguments.length - 1
+            return Array.prototype.push.apply(arguments[0], args)
+        },
+        pop: function () {
+            return Array.prototype.pop.apply(arguments[0])
+        }
+    }
+})()
+
+var a = new Object()
+console.log(a.length)
+Visitor.push(a, 1, 2, 3, 4)
+console.log(a)
+console.log(a.length)
+Visitor.push(a, 5, 6, 7)
+console.log(a)
+console.log(a.length)
+Visitor.pop(a)
+console.log(a)
+console.log(a.length)
+Visitor.splice(a, 2)
+console.log(a)
+console.log(a.length)
+</script>
+</html>
