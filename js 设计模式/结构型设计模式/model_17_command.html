@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命令模式</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+</body>
+<script>
+/**
+ * 命令模式
+ * 将请求与实现解耦并封装成独立对象
+ * 从而使不同的请求对客户端的实现参数化
+ * 
+ **/
+
+var viewCommand = (function () {
+    var tpl = {
+        product: [
+            '<div>',
+                '<img src="{#src#}" />',
+                '<p>{#text#}</p>',
+            '</div>'
+        ].join(''),
+        title: [
+            '<div class="title">',
+                '<div class="main">',
+                    '<h2>{#title#}</h2>',
+                    '<p>{#tips#}</p>',
+            '</div>'
+        ].join(''),
+    },
+    html = '';
+    // 字符串模板的格式化方法
+    // 字符串模板用法 vue的模板应该也是如此
+    function formartString (str, obj) {
+        return str.replace(/\{\#(\w+)\#\}/g, function (match, key) {
+            return obj[key]
+        })
+    }
+    // 指令集
+    var Action = {
+        create: function (data, view) {
+            if (data && data.length) {
+                for (var i=0; i <data.length; i ++) {
+                    html += formartString(tpl[view], data[i])
+                }
+            } else {
+                html += formartString(tpl[view], data)
+            }
+        },
+        display: function (container, data, view) {
+            if (data) {
+                this.create(data, view)
+            }
+            document.getElementById(container).innerHTML = html
+            html = ''
+        }
+    }
+    // 命令执行器
+    return function excute (msg) {
+        msg.param = Object.prototype.toString.call(msg.param) === '[object Array]' ? msg.param : [msg.param]
+        Action[msg.command].apply(Action, msg.param)
+    }
+})()
+
+// 测试
+var prouctData = [
+    {
+        src: 'test.jpg',
+        text: 'hahahahah'
+    },
+    {
+        src: 'test1.jpg',
+        text: 'hihihihi'
+    }
+]
+var titleData = [
+    {
+        title: '哟吼',
+        text: '特特特特特特'
+    }
+]
+
+// viewCommand({
+//     command: 'create',
+//     param: [{
+//         src: 'test.jpg',
+//         text: '测试'
+//     }]
+// })
+
+// viewCommand({
+//     command: 'display',
+//     param: ['product', prouctData, 'product']
+// })
+
+
+//////////////////////////////绘图案例////////////////////////
+var canvasCommand = function(){
+    var canvas = document.getElementById('canvas'),
+        ctx = canvas.getContext('2d')
+    
+    // 命令集
+    var Action = {
+        // 填充色彩
+        fillStyle: function(sty) {
+            ctx.fillStyle = sty
+        },
+        // 填充矩形
+        fillRect: function(x, y, width, height) {
+            ctx.fillRect(x, y, width, height)
+        },
+        // 填充字体
+        fillText: function(text, x, y) {
+            ctx.fillText(text, x, y)
+        },
+        // 开启路径
+        beginPath: function() {
+            ctx.beginPath()
+        },
+        // 移动画笔触点
+        moveTo: function(x, y) {
+            ctx.moveTo(x, y)
+        },
+        // 画笔连线
+        linkTo: function(x, y) {
+            ctx.linkTo(x, y)
+        },
+        // 绘制弧线
+        arc: function(x, y, begin, end, dir) {
+            ctx.arc(x, y, begin, end, dir)
+        },
+        // 填充
+        fill: function() {
+            ctx.fill()
+        },
+        // 描边
+        stroke: function() {
+            ctx.stroke()
+        }
+    }
+
+    // 执行器
+    return function excute(msg) {
+        if (!msg) return
+        if (msg.length) {
+            for (var i=0; i <msg.length; i++) {
+                arguments.callee(msg[i])
+            }
+        } else {
+            msg.param = Object.prototype.toString.call(msg.param) === '[object Array]' ? msg.param : [msg.param]
+            Action[msg.command].apply(Action, msg.param)
+        }
+    }
+}()
+
+// test
+canvasCommand([
+    { command: 'fillStyle', param: 'red' },
+    { command: 'fillRect', param: [20, 20, 100, 100] },
+])
+
+</script>
+</html>
